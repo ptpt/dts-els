@@ -1,5 +1,5 @@
 # dts-els
-A simple command line tool that generate TypeScript definition from ElasticSearch mappings.
+A simple command line tool that generates TypeScript definition from ElasticSearch mappings.
 
 ## Usage
 ```
