@@ -1,4 +1,22 @@
+#!/usr/bin/env node
 "use strict";
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var yargs = __importStar(require("yargs"));
 var GEO_SHAPE_TYPE = [
     "{coordinates: number[], type: 'Point'}",
     "{coordinates: number[][], type: 'MultiPoint'}",
@@ -10,7 +28,7 @@ var GEO_SHAPE_TYPE = [
     "{coordinates: number[], radius: string | number, type: 'Circle'}",
     "{geometries: any[], type: 'GeometryCollection'}"
 ].join(' | ');
-function getType(elsType, indent) {
+function getType(elsType, options) {
     if (elsType.type === 'date') {
         return 'number';
     }
@@ -18,11 +36,10 @@ function getType(elsType, indent) {
         return 'string';
     }
     else if (elsType.type === 'nested') {
-        var subType = generate(elsType.properties, undefined, indent + 1);
-        return "Array<" + subType + ">";
-    }
-    else if (elsType.type === 'object') {
-        return 'any';
+        return generate(elsType.properties, {
+            'indent': options.indent + 1,
+            'propertyPath': options.propertyPath,
+        });
     }
     else if (elsType.type === 'text') {
         return 'string';
@@ -34,7 +51,11 @@ function getType(elsType, indent) {
         return 'number';
     }
     else if (elsType.type === 'geo_point') {
-        return generate({ 'lon': { 'type': 'float' }, 'lat': { 'type': 'float' } }, undefined, indent + 1);
+        var geoPointType = { 'lon': { 'type': 'float' }, 'lat': { 'type': 'float' } };
+        return generate(geoPointType, {
+            'indent': options.indent + 1,
+            'propertyPath': options.propertyPath,
+        });
     }
     else if (elsType.type === 'boolean') {
         return 'boolean';
@@ -56,34 +77,43 @@ function getType(elsType, indent) {
     }
     else {
         if (elsType.properties) {
-            return generate(elsType.properties, undefined, indent + 1);
+            return generate(elsType.properties, {
+                'indent': options.indent + 1,
+                'propertyPath': options.propertyPath,
+            });
         }
         else {
             return 'any';
         }
     }
 }
-function generate(properties, interfaceName, indent) {
-    if (indent === void 0) { indent = 0; }
+function generate(properties, options) {
     var lines = [];
-    var spaces = new Array((indent + 1) * 4 + 1).join(' ');
+    var spaces = new Array((options.indent + 1) * 4 + 1).join(' ');
     lines.push("{");
     for (var key in properties) {
-        var type = getType(properties[key], indent);
+        var newPropertyPath = options.propertyPath.concat([key]);
+        var type = getType(properties[key], __assign({}, options, { 'propertyPath': newPropertyPath }));
+        var fullKey = newPropertyPath.join('.');
+        if (0 <= arrayProperties.indexOf(fullKey)) {
+            type = "Array<" + type + ">";
+        }
+        if (0 <= maybeArrayProperties.indexOf(fullKey)) {
+            type = type + " | Array<" + type + ">";
+        }
         lines.push('');
         lines.push(spaces + "// " + key + ": " + properties[key].type);
         lines.push(spaces + "'" + key + "': " + type + ";");
     }
-    var endingSpaces = new Array(indent * 4 + 1).join(' ');
+    var endingSpaces = new Array(options.indent * 4 + 1).join(' ');
     lines.push(endingSpaces + "}");
-    if (interfaceName) {
-        return "export interface " + interfaceName + " " + lines.join('\n');
+    if (options.interfaceName) {
+        return "export interface " + options.interfaceName + " " + lines.join('\n');
     }
     else {
         return lines.join('\n');
     }
 }
-// process.stdin.setEncoding('utf8');
 var text = '';
 process.stdin.on('readable', function () {
     var data = process.stdin.read();
@@ -91,6 +121,24 @@ process.stdin.on('readable', function () {
         text += data;
     }
 });
+var arrayProperties = [];
+var maybeArrayProperties = [];
+if (typeof yargs.argv.array === 'string') {
+    arrayProperties = yargs.argv.array.split(',');
+}
+if (typeof yargs.argv.maybeArray === 'string') {
+    maybeArrayProperties = yargs.argv.maybeArray.split(',');
+}
 process.stdin.on('end', function () {
-    console.log(generate(JSON.parse(text), process.argv[2]));
+    var interfaceName = yargs.argv._[0];
+    var properties;
+    try {
+        properties = JSON.parse(text);
+    }
+    catch (err) {
+        console.error(err.message);
+        process.exit(1);
+        return;
+    }
+    console.log(generate(properties, { 'interfaceName': interfaceName, 'indent': 0, 'propertyPath': [] }));
 });

@@ -1,9 +1,13 @@
 #!/usr/bin/env node
+import * as yargs from 'yargs';
+
+interface PropertyType {
+    type?: string;
+    properties?: Properties;
+}
 
 interface Properties {
-    [key: string]: {
-        type: number;
-    }
+    [key: string]: PropertyType;
 }
 
 const GEO_SHAPE_TYPE: string = [
@@ -18,16 +22,22 @@ const GEO_SHAPE_TYPE: string = [
     `{geometries: any[], type: 'GeometryCollection'}`
 ].join(' | ');
 
-function getType(elsType: any, indent: number) {
+interface Options {
+    indent: number;
+    interfaceName?: string;
+    propertyPath: string[];
+}
+
+function getType(elsType: PropertyType, options: Options) {
     if (elsType.type === 'date') {
         return 'number';
     } else if (elsType.type === 'keyword') {
         return 'string';
     } else if (elsType.type === 'nested') {
-        const subType = generate(elsType.properties, undefined, indent + 1);
-        return `Array<${subType}>`;
-    } else if (elsType.type === 'object') {
-        return 'any';
+        return generate(elsType.properties as Properties, {
+            'indent': options.indent + 1, 
+            'propertyPath': options.propertyPath,
+        });
     } else if (elsType.type === 'text') {
         return 'string';
     } else if (elsType.type === 'geo_shape') {
@@ -35,7 +45,11 @@ function getType(elsType: any, indent: number) {
     } else if (elsType.type === 'integer') {
         return 'number';
     } else if (elsType.type === 'geo_point') {
-        return generate({'lon': {'type': 'float'}, 'lat': {'type': 'float'}}, undefined, indent + 1);
+        const geoPointType = {'lon': {'type': 'float'}, 'lat': {'type': 'float'}};
+        return generate(geoPointType, {
+            'indent': options.indent + 1, 
+            'propertyPath': options.propertyPath,
+        });
     } else if (elsType.type === 'boolean') {
         return 'boolean';
     } else if (elsType.type === 'double') {
@@ -50,33 +64,42 @@ function getType(elsType: any, indent: number) {
         return 'number';
     } else {
         if (elsType.properties) {
-            return generate(elsType.properties, undefined, indent + 1);
+            return generate(elsType.properties, {
+                'indent': options.indent + 1, 
+                'propertyPath': options.propertyPath,
+            });
         } else {
             return 'any';
         }
     }
 }
 
-function generate(properties: Properties, interfaceName?: string, indent: number=0) {
+function generate(properties: Properties, options: Options) {
     const lines: string[] = [];
-    const spaces = new Array((indent + 1) * 4 + 1).join(' ');
+    const spaces = new Array((options.indent + 1) * 4 + 1).join(' ');
     lines.push(`{`);
     for (const key in properties) {
-        const type = getType(properties[key], indent);
+        const newPropertyPath = [...options.propertyPath, key];
+        let type = getType(properties[key], {...options, 'propertyPath': newPropertyPath});
+        const fullKey = newPropertyPath.join('.');
+        if (0 <= arrayProperties.indexOf(fullKey)) {
+            type = `Array<${type}>`;
+        } if (0 <= maybeArrayProperties.indexOf(fullKey)) {
+            type = `${type} | Array<${type}>`;
+        }
         lines.push('');
         lines.push(`${spaces}// ${key}: ${properties[key].type}`);
         lines.push(`${spaces}'${key}': ${type};`);
     }
-    const endingSpaces = new Array(indent * 4 + 1).join(' ');
+    const endingSpaces = new Array(options.indent * 4 + 1).join(' ');
     lines.push(`${endingSpaces}}`);
-    if (interfaceName) {
-        return `export interface ${interfaceName} ${lines.join('\n')}`;
+    if (options.interfaceName) {
+        return `export interface ${options.interfaceName} ${lines.join('\n')}`;
     } else {
         return lines.join('\n');
     }
 }
 
-// process.stdin.setEncoding('utf8');
 let text: string = '';
 process.stdin.on('readable', () => {
     const data = process.stdin.read();
@@ -85,6 +108,24 @@ process.stdin.on('readable', () => {
     }
 });
 
+let arrayProperties: string[] = [];
+let maybeArrayProperties: string[] = [];
+if (typeof yargs.argv.array === 'string') {
+    arrayProperties = yargs.argv.array.split(',');
+}
+if (typeof yargs.argv.maybeArray === 'string') {
+    maybeArrayProperties = yargs.argv.maybeArray.split(',');
+}
+
 process.stdin.on('end', () => {
-    console.log(generate(JSON.parse(text), process.argv[2]));
-})
+    const interfaceName = yargs.argv._[0];
+    let properties: Properties;
+    try {
+        properties = JSON.parse(text);
+    } catch (err) {
+        console.error(err.message);
+        process.exit(1);
+        return;
+    }
+    console.log(generate(properties, {'interfaceName': interfaceName, 'indent': 0, 'propertyPath': []}));
+});
