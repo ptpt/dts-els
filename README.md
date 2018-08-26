@@ -13,7 +13,7 @@ INTERFACE_NAME: Interface name of the definition
 ## Example
 Assume you have had the [tweet mapping](https://github.com/elastic/examples/blob/master/Common%20Data%20Formats/twitter/twitter_template.json) loaded, and [jq](https://stedolan.github.io/jq/) installed.
 ```shell
-curl -s "localhost:9200/tweets/_mapping/tweet" | jq .tweets.mappings.tweets.properties | dts-els --array=entities
+curl -s "localhost:9200/tweets/_mapping/tweet" | jq .tweets.mappings.tweets.properties | dts-els --array=entities ITweet
 ```
 
 ```typescript
