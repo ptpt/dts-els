@@ -1,0 +1,22 @@
+{
+  "name": "dts-els",
+  "version": "1.0.0",
+  "description": "A simple command line tool that generate TypeScript definition from ElasticSearch mappings",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ptpt/dts-els.git"
+  },
+  "author": "Tao Peng",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ptpt/dts-els/issues"
+  },
+  "homepage": "https://github.com/ptpt/dts-els#readme",
+  "devDependencies": {
+    "@types/node": "^10.9.2"
+  }
+}
