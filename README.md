@@ -17,7 +17,7 @@ curl -s "localhost:9200/tweets/_mapping/tweet" | jq .tweets.mappings.tweets.prop
 ```
 
 ```typescript
-{
+export interface ITweet {
 
     // @timestamp: date
     '@timestamp': number;
