@@ -16,6 +16,7 @@ Assume you have had the [tweet mapping](https://github.com/elastic/examples/blob
 curl -s "localhost:9200/tweets/_mapping/tweet" | jq .tweets.mappings.tweets.properties | dts-els --array=entities ITweet
 ```
 
+will print out:
 ```typescript
 export interface ITweet {
 
