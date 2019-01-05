@@ -34,20 +34,16 @@ export interface ITweet {
 
     // user: object
     'user': {
-
         // description: text
         'description': string;
     };
 
     // coordinates: object
     'coordinates': {
-
         // coordinates: geo_point
         'coordinates': {
-
             // lon: float
             'lon': number;
-
             // lat: float
             'lat': number;
         };
@@ -55,10 +51,8 @@ export interface ITweet {
 
     // entities: object
     'entities': Array<{
-
         // hashtags: object
         'hashtags': {
-
             // text: text
             'text': string;
         };
@@ -66,7 +60,6 @@ export interface ITweet {
 
     // retweeted_status: object
     'retweeted_status': {
-
         // text: text
         'text': string;
     };
