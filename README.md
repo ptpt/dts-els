@@ -11,9 +11,9 @@ INTERFACE_NAME: Interface name of the definition
 ```
 
 ## Example
-Assume you have had the [tweet mapping](https://github.com/elastic/examples/blob/master/Common%20Data%20Formats/twitter/twitter_template.json) loaded, and [jq](https://stedolan.github.io/jq/) installed.
+Assume you have [jq](https://stedolan.github.io/jq/) installed:
 ```shell
-curl -s "localhost:9200/tweets/_mapping/tweet" | jq .tweets.mappings.tweets.properties | dts-els --array=entities ITweet
+curl -s https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/twitter/twitter_template.json | jq .mappings.tweets.properties | npx dts-els --array=entities ITweet
 ```
 
 will print out:
@@ -23,7 +23,17 @@ export interface ITweet {
     // @timestamp: date
     '@timestamp': number;
 
-    // coordinates: undefined
+    // text: text
+    'text': string;
+
+    // user: object
+    'user': {
+
+        // description: text
+        'description': string;
+    };
+
+    // coordinates: object
     'coordinates': {
 
         // coordinates: geo_point
@@ -37,10 +47,10 @@ export interface ITweet {
         };
     };
 
-    // entities: undefined
+    // entities: object
     'entities': Array<{
 
-        // hashtags: undefined
+        // hashtags: object
         'hashtags': {
 
             // text: text
@@ -48,21 +58,11 @@ export interface ITweet {
         };
     }>;
 
-    // retweeted_status: undefined
+    // retweeted_status: object
     'retweeted_status': {
 
         // text: text
         'text': string;
-    };
-
-    // text: text
-    'text': string;
-
-    // user: undefined
-    'user': {
-
-        // description: text
-        'description': string;
     };
 }
 ```
