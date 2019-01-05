@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/ptpt/dts-els.svg?style=svg)](https://circleci.com/gh/ptpt/dts-els)
+
 # dts-els
 A simple command line tool that generates TypeScript definition from ElasticSearch mappings.
 
