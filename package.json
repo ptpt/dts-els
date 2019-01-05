@@ -18,7 +18,8 @@
   "homepage": "https://github.com/ptpt/dts-els#readme",
   "devDependencies": {
     "@types/node": "^10.9.2",
-    "@types/yargs": "^11.1.1"
+    "@types/yargs": "^11.1.1",
+    "typescript": "^3.2.2"
   },
   "bin": {
     "dts-els": "./index.js"
