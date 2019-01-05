@@ -1,6 +1,12 @@
 # dts-els
 A simple command line tool that generates TypeScript definition from ElasticSearch mappings.
 
+## Installation
+
+```
+npm install dts-els
+```
+
 ## Usage
 ```
 usage: dts-els [--array ARRAY_PROPERTIES] [--maybe-array MAYBE_ARRAY_PROPERTIES] INTERFACE_NAME
