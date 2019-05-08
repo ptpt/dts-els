@@ -1,6 +1,6 @@
 {
   "name": "dts-els",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A simple command line tool that generate TypeScript definition from ElasticSearch mappings",
   "main": "index.js",
   "scripts": {
