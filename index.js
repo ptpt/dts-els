@@ -11,21 +11,14 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-var yargs = __importStar(require("yargs"));
+exports.__esModule = true;
+var yargs = require("yargs");
 var GEO_SHAPE_TYPE = [
     "{coordinates: number[], type: 'Point'}",
     "{coordinates: number[][], type: 'MultiPoint'}",
     "{coordinates: number[][], type: 'LineString'}",
     "{coordinates: number[][][], type: 'MultiLineString'}",
-    "{coordinates: number[][], type: 'Polygon'}",
+    "{coordinates: number[][][], type: 'Polygon'}",
     "{coordinates: number[][][][], type: 'MultiPolygon'}",
     "{coordinates: number[][], type: 'Envelope'}",
     "{coordinates: number[], radius: string | number, type: 'Circle'}",
@@ -41,7 +34,7 @@ function getType(elsType, options) {
     else if (elsType.type === 'nested') {
         return generate(elsType.properties, {
             'indent': options.indent + 1,
-            'propertyPath': options.propertyPath,
+            'propertyPath': options.propertyPath
         });
     }
     else if (elsType.type === 'text') {
@@ -57,7 +50,7 @@ function getType(elsType, options) {
         var geoPointType = { 'lon': { 'type': 'float' }, 'lat': { 'type': 'float' } };
         return generate(geoPointType, {
             'indent': options.indent + 1,
-            'propertyPath': options.propertyPath,
+            'propertyPath': options.propertyPath
         });
     }
     else if (elsType.type === 'boolean') {
@@ -82,7 +75,7 @@ function getType(elsType, options) {
         if (elsType.properties) {
             return generate(elsType.properties, {
                 'indent': options.indent + 1,
-                'propertyPath': options.propertyPath,
+                'propertyPath': options.propertyPath
             });
         }
         else {
